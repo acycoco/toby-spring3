@@ -10,12 +10,15 @@ import static java.lang.System.getenv;
 
 public class UserDao {
 
-    SimpleConnectionMaker connectionMaker = new SimpleConnectionMaker();
+    ConnectionMaker connectionMaker;
 
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
 
-        Connection con = connectionMaker.makeNewConnection();
+        Connection con = connectionMaker.makeConnection();
         PreparedStatement ps = con.prepareStatement("insert into users(id,name,password) values (?,?,?)");
         ps.setString(1,user.getId());
         ps.setString(2,user.getName());
@@ -27,7 +30,7 @@ public class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {  //id를 받아서 그 유저를 리턴하는 메서드
-        Connection con = connectionMaker.makeNewConnection();
+        Connection con = connectionMaker.makeConnection();
 
         PreparedStatement ps = con.prepareStatement("select id, name, password from users where id = ?");
         ps.setString(1,id);
@@ -48,15 +51,16 @@ public class UserDao {
     }
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        UserDao userDao = new UserDao();
+        ConnectionMaker cm = new DConnectionMaker();
+        UserDao userDao = new UserDao(cm);
         User user = new User();
-        user.setId("4");
+        user.setId("7");
         user.setName("kyeongrok");
         user.setPassword("12345678");
 
         userDao.add(user);
 
-        User selectedUser = userDao.get("4");
+        User selectedUser = userDao.get("7");
         System.out.println(selectedUser.getId());
         System.out.println(selectedUser.getName());
         System.out.println(selectedUser.getPassword());
